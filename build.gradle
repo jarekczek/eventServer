@@ -1,0 +1,70 @@
+apply plugin: 'kotlin'
+
+buildscript {
+  ext.kotlin_version = '1.2.21'
+  ext.ktor_version = '0.9.1'
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+  maven { url "http://dl.bintray.com/kotlin/ktor" }
+  maven { url "https://dl.bintray.com/kotlin/kotlinx" }
+}
+
+dependencies {
+  compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  compile "io.ktor:ktor-html-builder:$ktor_version"
+  compile 'io.ktor:ktor-server-core:0.9.1'
+  compile 'io.ktor:ktor-server-netty:0.9.1'
+  compile 'org.slf4j:slf4j-jdk14:1.7.25'
+  compile 'com.github.waffle:waffle-jna:1.9.0'
+  testCompile 'junit:junit:4.12'
+}
+
+jar { // java plugin
+  manifest {
+    attributes(
+      "Manifest-Version": "1.0",
+      "Main-Class": "WwwServerKt",
+      "Class-Path": configurations.compile.files
+        .collect { it.getName() }.join(" ")
+    )
+  }
+
+  doLast {
+    copy {
+	    from configurations.compile.files
+	    into 'build/deps'
+	  }
+    println archivePath
+    println archiveName
+  }
+}
+
+task run (type:JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'WwwServerKt'
+  //jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=7778"
+}
+
+task stage(dependsOn: ['jar']) {
+  doLast {
+    println "jar built to " + tasks.jar.archivePath
+    copy {
+      from tasks.jar.archivePath
+      into 'build/libs'
+      rename { 'eventServer.jar' }
+    }
+    copy {
+  	  from configurations.compile.files
+	    into 'build/libs'
+	  }
+  }
+}

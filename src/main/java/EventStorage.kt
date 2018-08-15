@@ -40,11 +40,12 @@ class EventStorage(val code: String, val workDir: String) {
   }
 
   fun waitForAnyEvent() {
-    var lastSize  = 0L
+    var lastSize  = -99L
     while(true) {
       val file = File(filenameForDate(Calendar.getInstance().time))
       val curSize = file.length()
-      if (curSize != 0L && curSize != lastSize)
+      println("$curSize $lastSize")
+      if (lastSize != -99L && curSize != 0L && curSize != lastSize)
         break
       lastSize = curSize
     }

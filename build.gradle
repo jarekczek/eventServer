@@ -28,6 +28,10 @@ dependencies {
   testCompile 'junit:junit:4.12'
 }
 
+kotlin {
+  experimental { coroutines 'enable' }
+}
+
 jar { // java plugin
   manifest {
     attributes(
@@ -57,10 +61,14 @@ task run (type:JavaExec) {
 task stage(dependsOn: ['jar']) {
   doLast {
     println "jar built to " + tasks.jar.archivePath
-    copy {
-      from tasks.jar.archivePath
-      into 'build/libs'
-      rename { 'eventServer.jar' }
+    def correctPath = new File("build/libs/eventServer.jar").absolutePath
+    if (!correctPath.equals(tasks.jar.archivePath.toString())) {
+      // At heroku jar is placed in tmp.
+      copy {
+        from tasks.jar.archivePath
+        into 'build/libs'
+        rename { 'eventServer.jar' }
+      }
     }
     copy {
   	  from configurations.compile.files

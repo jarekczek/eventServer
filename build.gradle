@@ -11,6 +11,10 @@ buildscript {
   }
 }
 
+apply plugin: 'idea'
+idea.module.downloadJavadoc = true
+//        downloadSources = true
+
 repositories {
   mavenCentral()
   jcenter()

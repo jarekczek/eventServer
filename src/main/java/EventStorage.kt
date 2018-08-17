@@ -1,4 +1,5 @@
 import java.io.File
+import kotlinx.coroutines.experimental.delay
 import java.nio.charset.Charset
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,7 +40,7 @@ class EventStorage(val code: String, val workDir: String) {
     return event
   }
 
-  fun waitForAnyEvent() {
+  suspend fun waitForAnyEvent() {
     var lastSize  = -99L
     while(true) {
       val file = File(filenameForDate(Calendar.getInstance().time))
@@ -47,10 +48,11 @@ class EventStorage(val code: String, val workDir: String) {
       if (lastSize != -99L && curSize != 0L && curSize != lastSize)
         break
       lastSize = curSize
+      delay(50)
     }
   }
 
-  fun readNew(): String {
+  suspend fun readNew(): String {
     waitForAnyEvent()
     return readLast()!!
   }

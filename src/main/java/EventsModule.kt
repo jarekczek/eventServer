@@ -4,10 +4,14 @@ import io.ktor.html.respondHtml
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.withContext
 import kotlinx.html.body
 import kotlinx.html.p
 
 class EventsModule(val workDir: String) {
+  val coroutinesCtx = newFixedThreadPoolContext(1, "jctx")
+
   fun getModuleFunction(): (Application.() -> Unit) {
     return {
       routing {
@@ -17,11 +21,13 @@ class EventsModule(val workDir: String) {
           if (code?.matches(Regex("^[0-9a-z_]+$")) != true)
             throw RuntimeException("code must consist of letters, digits and underscore only.")
           val stor = EventStorage(code, workDir)
-          val resp = if (last == null)
-            stor.readNew()
-          else
-            stor.readLast()
-          call.respondText("" + resp)
+          withContext(coroutinesCtx) {
+            val resp = if (last == null) {
+              stor.readNew()
+            } else
+              stor.readLast()
+            call.respondText("" + resp)
+          }
         }
 
         get("/events/write") {

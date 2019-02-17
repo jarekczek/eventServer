@@ -16,6 +16,7 @@ fun main(args: Array<String>) {
       port = dynamicPort
     }
     modules.add(EventsModule(System.getenv("WORK_DIR")).getModuleFunction())
+    modules.add(StaticModule().getModuleFunction())
   }
 
   val server = embeddedServer(Netty, env)

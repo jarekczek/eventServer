@@ -43,6 +43,22 @@ class EventsModule(val workDir: String) {
             }
           }
         }
+
+        get("/events/fileread") {
+          val code = call.parameters["code"]
+          val last = call.parameters["last"]
+          if (code?.matches(Regex("^[0-9a-z_]+$")) != true)
+            throw RuntimeException("code must consist of letters, digits and underscore only.")
+          val stor = FileReader(code, workDir)
+          withContext(coroutinesCtx) {
+            val resp = if (last == null) {
+              stor.readFile()
+            } else
+              stor.readChangedFile()
+            call.respondText("" + resp)
+          }
+        }
+
       }
     }
   }

@@ -41,15 +41,7 @@ class EventStorage(val code: String, val workDir: String) {
   }
 
   suspend fun waitForAnyEvent() {
-    var lastSize  = -99L
-    while(true) {
-      val file = File(filenameForDate(Calendar.getInstance().time))
-      val curSize = file.length()
-      if (lastSize != -99L && curSize != 0L && curSize != lastSize)
-        break
-      lastSize = curSize
-      delay(50)
-    }
+    Fun.waitForFileChange(filenameForDate(Calendar.getInstance().time))
   }
 
   suspend fun readNew(): String {

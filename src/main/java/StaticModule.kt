@@ -20,8 +20,9 @@ class StaticModule() {
       routing {
         get("/static/{name}") {
           call.respondWrite(contentType = ContentType.Text.Html) {
+            val thisClass = this@StaticModule
             val name = call.parameters["name"]
-            val istr = javaClass.getResourceAsStream("/static/$name.html")
+            val istr = thisClass.javaClass.getResourceAsStream("static/$name.html")
             istr.bufferedReader().lines().forEach {
               write(it + "\n")
             }

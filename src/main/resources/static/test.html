@@ -1,5 +1,5 @@
 <html>
-<body>
+<body onload="getContentLoop()">
 <p>teeeeeest</p>
 <textarea id="out" rows="30" cols="80">?</textarea>
 <form>
@@ -8,12 +8,34 @@
 </body>
 
 <script>
-function getContent() {
+function getContentAsync(changed, then) {
+  console.log('getContent ' + changed);
   var req = new XMLHttpRequest();
   // the request must be in the same domain as the containing webpage
-  req.open("GET", "/events/fileread?code=hand", false);
+  var url = "/events/fileread?code=hand";
+  if (changed)
+    url += '&last=';
+  req.open("GET", url, true);
+  req.timeout = 1000;
+  req.onreadystatechange = function () {
+    if (req.readyState === 4) {
+      if (req.status === 200) {
+        document.getElementById('out').textContent = req.responseText;
+        then();
+      } else if (req.status === 0) {
+        // Possibly timeout.
+        then();
+      } else {
+        document.getElementById('out').textContent = 'error: ' + req.status + ' ' + req.responseText;
+      }
+    }
+  };
   req.send();
-  document.getElementById('out').textContent = req.responseText;
+}
+
+function getContentLoop(insideLoop) {
+  var then = function() { getContentLoop(true); };
+  getContentAsync(insideLoop === true, then);
 }
 </script>
 

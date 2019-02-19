@@ -16,7 +16,7 @@ function getContentAsync(changed, then) {
   if (changed)
     url += '&last=';
   req.open("GET", url, true);
-  req.timeout = 1000;
+  req.timeout = 120*1000;
   req.onreadystatechange = function () {
     if (req.readyState === 4) {
       if (req.status === 200) {

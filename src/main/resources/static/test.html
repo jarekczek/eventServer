@@ -19,15 +19,20 @@ function getContentAsync(changed, then) {
   req.timeout = 120*1000;
   req.onreadystatechange = function () {
     if (req.readyState === 4) {
+      var textArea = document.getElementById('out')
       if (req.status === 200) {
-        document.getElementById('out').textContent = req.responseText;
+        textArea.textContent = req.responseText;
         then();
       } else if (req.status === 0) {
         // Possibly timeout.
         then();
       } else {
-        document.getElementById('out').textContent = 'error: ' + req.status + ' ' + req.responseText;
+        textArea.textContent = 'error: ' + req.status + ' ' + req.responseText;
       }
+      var len = textArea.textContent.length
+      textArea.selectionStart = len
+      textArea.selectionEnd = len
+      textArea.scrollTop = textArea.scrollHeight
     }
   };
   req.send();

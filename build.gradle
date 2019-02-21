@@ -80,3 +80,21 @@ task stage(dependsOn: ['jar']) {
 	  }
   }
 }
+
+task deploy(dependsOn: 'jar') {
+  doLast {
+    "c:\\program_files\\putty\\pscp.exe -pw $System.env.PSCPPASS build/libs/*.jar pi@192.168.16.115:/home/pi/java/eventServer"
+            .execute()
+            .inputStream.eachLine { println(it) }
+    "c:\\program_files\\espeak\\command_line\\espeak -s 250 deployed".execute()
+  }
+}
+
+task deployDeps {
+  doLast {
+    "c:\\program_files\\putty\\pscp.exe -pw $System.env.PSCPPASS build/deps/*.jar pi@192.168.16.115:/home/pi/java/eventServer"
+            .execute()
+            .inputStream.eachLine { println(it) }
+    "c:\\program_files\\espeak\\command_line\\espeak -s 250 deployed".execute()
+  }
+}
